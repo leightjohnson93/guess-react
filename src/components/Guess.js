@@ -1,107 +1,87 @@
 import React, { Component } from "react";
-import '../App.css';
+import "../App.css";
 
 const initialState = {
-    tries: 1,
-    min: 1,
-    max: 100,
-    guess: 50,
-    message: "Is it ",
-    punctuation: "?",
-    gameOver: false
-}
+  min: 1,
+  max: 100,
+  guess: 50,
+  message: "Is it 50?",
+  gameOver: false
+};
 
 class Guess extends Component {
   constructor(props) {
     super(props);
     this.state = initialState;
-    this.higherClick = this.higherClick.bind(this);
-    this.lowerClick = this.lowerClick.bind(this);
-    this.correctClick = this.correctClick.bind(this);
-    this.resetClick = this.resetClick.bind(this);
-  }
-
-  resetClick = () => {
-    this.setState(initialState)
   }
 
   lowGuess = () => {
-    if (Math.round((this.state.min + this.state.guess - 2) / 2) === 0) {
-      this.setState({ guess: 1 });
-    } else {
-      this.setState({
-        guess: Math.round((this.state.min + this.state.guess - 2) / 2)
-      });
-    }
+    const { guess, min } = this.state;
+    let newGuess = Math.round((min + guess - 2) / 2);
+    newGuess = newGuess === 0 ? 1 : newGuess;
+    const message = `Is it ${newGuess}?`;
+    this.setState({ message, guess: newGuess });
   };
 
   checkForWinHigh = () => {
-    if (this.state.max - this.state.min <= 2) {
-      this.setState({ message: "Your number was " });
-      this.setState({ gameOver: true });
-      this.setState({ punctuation: "!" });
+    let { max, min, guess } = this.state;
+    if (max - min <= 2) {
+      const message = `Your number was ${guess + 1}!`;
+      const gameOver = true;
+      this.setState({ message, gameOver });
       return true;
+    } else {
+      return false;
     }
   };
 
   checkForWinLow = () => {
-    if (this.state.guess === 1) {
-      this.setState({
-        message: "It can't be lower than "
-      });
-      this.setState({ punctuation: "!" });
-      this.setState({ gameOver: true });
+    const { guess, min, max } = this.state;
+    if (guess === 1) {
+      const message = `It can't be lower than ${guess}!`;
+      const gameOver = true;
+      this.setState({ message, gameOver });
       return true;
-    } else if (this.state.max - this.state.min === 1) {
-      this.setState({
-        message: "It was higher than "
-      });
-      this.setState({ gameOver: true });
-      this.setState({ punctuation: "!" });
+    } else if (max - min === 1) {
+      const message = `It was higher than ${guess - 1}!`;
+      const gameOver = true;
+      this.setState({ message, gameOver });
       return true;
+    } else {
+      return false;
     }
   };
 
-  higherClick() {
-    this.setState({
-      guess: Math.round((this.state.guess + this.state.max) / 2)
-    });
-    if (this.checkForWinHigh()) {
-      return;
-    }
-    this.setState({ tries: this.state.tries + 1 });
-    this.setState({ min: this.state.guess + 1 });
-    this.setState({ message: "Is it " });
-  }
+  higherClick = () => {
+    if (this.checkForWinHigh()) return;
+    const { guess, max } = this.state;
+    const newGuess = Math.round((guess + max) / 2);
+    const min = guess + 1;
+    const message = `Is it ${newGuess}?`;
+    this.setState({ min, message, guess: newGuess });
+  };
 
-  lowerClick() {
+  lowerClick = () => {
+    if (this.checkForWinLow()) return;
     this.lowGuess();
-    if (this.checkForWinLow()) {
-      return;
-    }
-    this.setState({ tries: this.state.tries + 1 });
-    this.setState({ max: this.state.guess - 1 });
-    this.setState({ message: "Is it " });
-  }
+    const max = this.state.guess - 1;
+    this.setState({ max });
+  };
 
-  correctClick() {
-    this.setState({ message: "Your number was " });
-    this.setState({ gameOver: true });
-    this.setState({ punctuation: "!" });
-  }
+  correctClick = () => {
+    const message = `Your number was ${this.state.guess}!`;
+    const gameOver = true;
+    this.setState({ message, gameOver });
+  };
 
   render() {
     return (
       <div className="Tile">
-      <h1>Guess</h1>
+        <h1>Guess</h1>
         <h3>
-          Think of a number between 1 and 100
+          Think of a number between {this.state.min} and {this.state.max}
         </h3>
-        <h2>
-          {this.state.message}
-          {this.state.guess}
-          {this.state.punctuation}
-        </h2>
+        <h2>{this.state.message}</h2>
         <button
           className="Correct"
           disabled={this.state.gameOver}
@@ -123,11 +103,8 @@ class Guess extends Component {
         >
           Lower
         </button>
-        <button
-        className="Reset"
-        onClick={this.resetClick}
-        >
-        Restart
+        <button className="Reset" onClick={() => this.setState(initialState)}>
+          Restart
         </button>
       </div>
     );

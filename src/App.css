@@ -23,12 +23,18 @@
 }
 
 .Tile {
+  height: 255px;
+  width: 300px;
   border-radius: 8px;
   float: left;
   padding: 20px;
   background-color: rgb(164, 235, 255);
   margin: 5px;
   box-shadow: 10px 10px 5px grey;
+}
+
+button {
+  margin: 5px;
 }
 
 @keyframes App-logo-spin {
